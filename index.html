@@ -87,12 +87,14 @@
     <h3 id="edTitle">Rezept bearbeiten</h3>
     <label class="small" for="edName">Name</label>
     <input class="field" id="edName" placeholder="z. B. Negroni">
+    <label class="small" style="margin-top:12px">Glas</label>
+    <div class="glass-pick" id="edGlass" role="group" aria-label="Glas" data-auto="1"></div>
     <div style="margin-top:14px">
-      <div class="ing ing-head"><span>Zutat</span><span>Menge</span><span>Einheit</span><span>% vol</span><span style="text-align:center">Im Batch</span><span></span></div>
+      <div class="ing ing-head"><span>Zutat</span><span>Menge</span><span>Einheit</span><span>% vol</span><span></span></div>
       <div id="edIngs"></div>
       <button class="btn ghost" id="edAdd" style="margin-top:10px">+ Zutat</button>
     </div>
-    <p class="hint">„Im Batch“ ausschalten für alles, was erst beim Service dazukommt (Soda, Tonic, Sekt, Eiweiß). Flaschengröße steuert die Flaschen-Rechnung.</p>
+    <p class="hint"><b>Jar</b> = wird gebatcht. <b>Frisch</b> = kommt erst beim Service dazu (Säfte, Soda, Limo, Tonic, Sekt, Eiweiß …). Die App erkennt das am Namen – du kannst es jederzeit umstellen. Die Flaschengröße steuert die Flaschen-Rechnung.</p>
     <div class="confirm" id="edConfirm"><span>Rezept wirklich löschen?</span><span><button class="btn" id="edConfirmNo">Abbrechen</button> <button class="btn danger" id="edConfirmYes">Löschen</button></span></div>
     <div class="sheet-foot">
       <button class="btn danger" id="edDelete">Löschen</button>

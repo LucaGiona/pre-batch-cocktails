@@ -6,7 +6,7 @@
 // installiert die neue Version im Hintergrund und nimmt sie beim nächsten Öffnen.
 // Ohne VERSION zu erhöhen, sieht niemand die Änderungen!
 
-const VERSION = 'v3';
+const VERSION = 'v6';
 const SHELL = `prebatch-shell-${VERSION}`;
 
 const SHELL_FILES = [
@@ -21,6 +21,7 @@ const SHELL_FILES = [
   'js/calc.js',
   'js/views/result.js',
   'js/views/editor.js',
+  'js/views/graphics.js',
 ];
 
 // Schön, aber nicht nötig: Fehlt eine davon, läuft die App trotzdem offline

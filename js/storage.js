@@ -1,10 +1,12 @@
 // Speicher auf dem Gerät (localStorage). Rezepte + zuletzt gewählte Einstellungen.
 // Alles mit try/catch: Im privaten Modus oder bei vollem Speicher darf die App nicht abstürzen.
 
-import { PRESETS } from './recipes.js';
+import { PRESETS, isFresh, defaultGlass } from './recipes.js';
 
 const KEY_RECIPES = 'prebatch.recipes.v1';
 const KEY_STATE = 'prebatch.state.v1';
+const KEY_DATA_VERSION = 'prebatch.dataVersion';
+const DATA_VERSION = 3; // 2 = frische Zutaten getrennt, 3 = Glas pro Rezept
 
 const DEFAULT_STATE = { currentId: 'negroni', mode: 'vol', targetL: 7, count: 70, jarL: 7.5 };
 
@@ -19,9 +21,32 @@ const write = (key, value) => {
 export const clone = o => JSON.parse(JSON.stringify(o));
 export const defaultRecipes = () => clone(PRESETS);
 
+// Alte Daten umrechnen:
+// v2: Frische Zutaten kamen früher ins Jar, jetzt nie mehr. Neue Startrezepte ergänzen.
+// v3: Jedes Rezept bekommt ein Glas (Startrezepte ihr eigenes, sonst nach Zutaten).
+function migrate(recipes, from) {
+  if (from < 2) {
+    for (const r of recipes)
+      for (const i of r.ings)
+        if (i.batch && isFresh(i.name)) i.batch = false;
+  }
+  for (const r of recipes)
+    if (!r.glass) r.glass = PRESETS.find(p => p.id === r.id)?.glass || defaultGlass(r.ings);
+  for (const p of PRESETS)
+    if (!recipes.some(r => r.id === p.id)) recipes.push(clone(p));
+  return recipes;
+}
+
 export function loadRecipes() {
-  const r = read(KEY_RECIPES, null);
-  return Array.isArray(r) && r.length ? r : defaultRecipes();
+  const stored = read(KEY_RECIPES, null);
+  if (!Array.isArray(stored) || !stored.length) return defaultRecipes();
+  const from = read(KEY_DATA_VERSION, 1);
+  if (from < DATA_VERSION) {
+    migrate(stored, from);
+    write(KEY_RECIPES, stored);
+    write(KEY_DATA_VERSION, DATA_VERSION);
+  }
+  return stored;
 }
 
 export function loadState() {
@@ -33,4 +58,5 @@ export function loadState() {
 export function save(recipes, state) {
   write(KEY_RECIPES, recipes);
   write(KEY_STATE, state);
+  write(KEY_DATA_VERSION, DATA_VERSION);
 }

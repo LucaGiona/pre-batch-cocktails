@@ -23,7 +23,7 @@ function renderChips() {
 
   const r = current();
   $('#recipeSpec').innerHTML = r ? r.ings.filter(i => i.name).map(i =>
-    `<b>${fAuto(+i.amount)} ${UNITS[i.unit].label}</b> ${esc(i.name)}${i.batch ? '' : ' <span class="tag">Service</span>'}`
+    `<b>${fAuto(+i.amount)} ${UNITS[i.unit].label}</b> ${esc(i.name)}${i.batch ? '' : ' <span class="tag">frisch</span>'}`
   ).join(' · ') : '';
 }
 
