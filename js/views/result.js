@@ -1,11 +1,11 @@
-// Ergebnis-Karte: Kennzahlen, „Ins Jar“, „Frisch beim Service“, Grafik, Hinweise.
+// Ergebnis-Karte: Kennzahlen, Batch-Tabelle, „Frisch zufügen“, Grafik, Hinweise.
 
-import { UNITS, MAX_L, FILL, defaultGlass } from '../recipes.js';
+import { UNITS, MAX_L, defaultGlass } from '../recipes.js';
 import { esc, fAuto, fInt, fL, fMl, fNum } from '../utils.js';
+import { fillText } from '../calc.js';
 import { BATCH_COLOR, containerSvg, glassSvg } from './graphics.js';
 
 const amount = i => `${fAuto(+i.amount)} ${UNITS[i.unit].label}`;
-const isBottle = state => state.jarL < 2;   // 0,7 L / 1 L → Flaschen statt Jar
 
 // Pfeil vom Gefäß zum Glas, mit Menge pro Drink darüber
 function arrowSvg(label) {
@@ -42,25 +42,43 @@ function legend(c, colors, bottleWord) {
   return `<div class="legend">${items.join('')}</div>`;
 }
 
+// Abfüllen: volle Gefäße (ab 4 zusammengefasst) + ein Gefäß mit dem Rest
+function vessels(f) {
+  const kind = f.bottle ? 'bottle' : 'jar';
+  const size = `${fAuto(f.sizeL)} L`;
+  const shown = (f.full > 3 ? 1 : f.full) + (f.restMl ? 1 : 0);
+  const scale = shown > 1 ? 0.72 : 1;
+  const out = [];
+  if (f.full > 3) out.push(containerSvg(kind, 1, `${f.full} × ${size}`, 'f', scale));
+  else for (let k = 0; k < f.full; k++) out.push(containerSvg(kind, 1, size, 'f' + k, scale));
+  if (f.restMl) out.push(containerSvg(kind, f.restMl / f.capMl, `${f.full ? 'Rest ' : ''}${fL(f.restMl)}`, 'r', scale, 'rest'));
+  return out.join('');
+}
+
 // Gefäß(e) → Pfeil → Glas × Anzahl
-function flow(c, state) {
+function flow(c) {
   const colors = freshColors(c.freshRows);
-  const kind = isBottle(state) ? 'bottle' : 'jar';
-  const fill = c.perJar / (state.jarL * 1000);
-  const each = `${fNum(c.perJar / 1000, 2)} L`;
-  const vessels = c.jars > 3
-    ? containerSvg(kind, fill, `${c.jars} × ${each}`, 0)
-    : Array.from({ length: c.jars }, (_, k) => containerSvg(kind, fill, each, k, c.jars > 1 ? 0.72 : 1)).join('');
   const layers = [
     { cl: c.pourCl, color: BATCH_COLOR, name: 'Batch' },
     ...c.freshRows.map((r, k) => ({ cl: r.perCl, color: colors[k], name: r.name })),
   ];
   const glass = c.recipe.glass || defaultGlass(c.recipe.ings);
   return `<div class="flow" aria-label="Aus dem Batch ins Glas">
-    <div class="flow-jars">${vessels}</div>
+    <div class="flow-jars">${vessels(c.fill)}</div>
     ${arrowSvg(`${fNum(c.pourCl, 1)} cl`)}
-    <div class="flow-glass">${glassSvg(glass, layers)}<div class="times">× ${fInt(c.drinks)}<small>Drinks</small></div></div>
-  </div>${legend(c, colors, kind === 'bottle' ? 'der Flasche' : 'dem Jar')}`;
+    <div class="flow-glass">${glassSvg(glass, layers)}<div class="times${c.drinks >= 1000 ? ' big' : ''}">× ${fInt(c.drinks)}<small>Drinks</small></div></div>
+  </div>${legend(c, colors, 'dem Batch')}`;
+}
+
+// Zeile unter der Grafik: was wird abgefüllt + Knopf „auf volle Gefäße aufrunden“
+function fillLine(c, state) {
+  const f = c.fill, word = f.bottle ? 'Flaschen' : 'Jars';
+  const text = fillText(f);
+  const canRound = state.mode === 'vol' && f.full > 0 && f.roundUpL && f.roundUpL <= MAX_L;
+  const btn = canRound
+    ? `<button class="btn" id="roundUp" data-l="${f.roundUpL}">Auf ${f.full + 1} volle ${word} aufrunden (+${fL(f.roundUpL * 1000 - c.totalMl)})</button>`
+    : '';
+  return `<div class="fill-line"><span>Abfüllen: <b>${text}</b></span>${btn}</div>`;
 }
 
 function notes(c, state) {
@@ -68,11 +86,7 @@ function notes(c, state) {
   if (c.capped) out.push(['warn', `Maximal ${MAX_L} L pro Batch – auf ${fInt(c.maxCount)} Drinks begrenzt.`]);
   const forced = c.rows.filter(r => r.forced).map(r => esc(r.name));
   if (forced.length)
-    out.push(['warn', `${forced.join(', ')} ${forced.length > 1 ? 'sind' : 'ist'} ins Jar geschaltet. Frische Zutaten halten im Batch nur ca. 1 Tag – im Editor auf „Frisch“ stellen.`]);
-  if (c.jars > 1)
-    out.push(['', `Passt nicht in ein Gefäß – auf ${c.jars} × ${state.jarL >= 2 ? 'Jars' : 'Flaschen'} à ${fNum(c.perJar / 1000, 2)} L verteilen. Am besten erst komplett mischen, dann abfüllen.`]);
-  if (state.mode === 'vol' && state.jarL >= 2 && state.targetL > state.jarL * FILL && state.targetL <= state.jarL)
-    out.push(['', `${fAuto(state.targetL)} L im ${fAuto(state.jarL)}-L-Jar ist randvoll – mit 7 L bleibt Platz zum Umrühren.`]);
+    out.push(['warn', `${forced.join(', ')} ${forced.length > 1 ? 'sind' : 'ist'} im Batch. Frische Zutaten halten im Batch nur ca. 1 Tag – im Editor auf „Frisch“ stellen.`]);
   if (c.rows.some(r => r.unit === 'dash'))
     out.push(['', 'Dashes umgerechnet mit 1 Dash ≈ 0,8 ml. Bitters lieber knapp dosieren und abschmecken – sie dominieren im Batch schnell.']);
   return out;
@@ -83,11 +97,11 @@ function jarTable(c, state) {
     <tr>
       <td>${esc(r.name)}${r.forced ? '<span class="tag warn">frisch</span>' : ''}
         <span class="alt">${amount(r)} pro Drink${r.abv ? ' · ' + fAuto(+r.abv) + ' %' : ''}</span></td>
-      <td><span class="main">${fMl(r.ml)}</span><span class="alt">${fL(r.ml)}</span></td>
+      <td><span class="main">${fL(r.ml)}</span><span class="alt">${fMl(r.ml)}</span></td>
       <td><span class="main">${fNum(r.bottles, 1)}</span><span class="alt">× ${fAuto(r.bottle)} L</span></td>
     </tr>`).join('');
   return `
-    <h3 class="block-title">${isBottle(state) ? 'In die Flaschen' : 'Ins Jar'}</h3>
+    <h3 class="block-title">Batch</h3>
     <table>
       <thead><tr><th>Zutat</th><th>Menge</th><th>Flaschen</th></tr></thead>
       <tbody>${rows}
@@ -106,7 +120,8 @@ function freshTable(c) {
     </tr>`).join('');
   return `
     <div class="fresh-block">
-      <h3 class="block-title">Frisch beim Service <span class="tag">nicht im Jar</span></h3>
+      <h3 class="block-title">Frisch zufügen</h3>
+      <p class="block-sub"><span class="no-batch">nicht im Batch</span> pro Drink beim Service frisch dazugeben</p>
       <table>
         <thead><tr><th>Zutat</th><th>Gesamt</th><th>Flaschen</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -117,7 +132,7 @@ function freshTable(c) {
 export function renderResult(el, c, state) {
   if (!c) { el.innerHTML = '<p class="empty">Kein Rezept gewählt.</p>'; return; }
   if (c.empty) {
-    el.innerHTML = '<h2>Ergebnis</h2><p class="empty">Dieses Rezept hat keine Zutaten fürs Jar – alles wird frisch zugegeben. Tippe auf „Bearbeiten“.</p>';
+    el.innerHTML = '<h2>Ergebnis</h2><p class="empty">Dieses Rezept hat keine Zutaten für den Batch – alles wird frisch zugegeben. Tippe auf „Bearbeiten“.</p>';
     return;
   }
 
@@ -128,15 +143,16 @@ export function renderResult(el, c, state) {
   el.innerHTML = `
     <h2>Ergebnis · ${esc(c.recipe.name)}</h2>
     <div class="summary">
-      <div class="stat"><div class="k">Jar gesamt</div><div class="v">${fNum(c.totalMl / 1000, 2)} <small>L</small></div></div>
+      <div class="stat"><div class="k">Batch gesamt</div><div class="v">${fNum(c.totalMl / 1000, 2)} <small>L</small></div></div>
       <div class="stat"><div class="k">Drinks</div><div class="v">${drinks}</div></div>
-      <div class="stat"><div class="k">aus dem Jar</div><div class="v">${fNum(c.pourCl, 1)} <small>cl</small></div></div>
-      <div class="stat"><div class="k">Alkohol Jar</div><div class="v">${fNum(c.abv, 1)} <small>% vol</small></div>${abvHint}</div>
+      <div class="stat"><div class="k">aus dem Batch</div><div class="v">${fNum(c.pourCl, 1)} <small>cl</small></div></div>
+      <div class="stat"><div class="k">Alkohol Batch</div><div class="v">${fNum(c.abv, 1)} <small>% vol</small></div>${abvHint}</div>
     </div>
     ${jarTable(c, state)}
     ${freshTable(c)}
-    ${flow(c, state)}
-    <div class="service">Pro Drink: <b>${fNum(c.pourCl, 1)} cl</b> aus dem Jar${freshPart}.</div>
+    ${flow(c)}
+    ${fillLine(c, state)}
+    <div class="service">Pro Drink: <b>${fNum(c.pourCl, 1)} cl</b> aus dem Batch${freshPart}.</div>
     <ul class="notes">${notes(c, state).map(([cls, t]) => `<li class="${cls}">${t}</li>`).join('')}</ul>
     <div class="actions">
       <button class="btn primary" id="copyBtn">Batch-Zettel kopieren</button>

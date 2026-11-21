@@ -1,8 +1,18 @@
 // Einheiten, Flaschengrößen, Erkennung frischer Zutaten und Startrezepte.
 // Alle Mengen werden intern in cl gerechnet; UNITS.f ist der Faktor nach cl.
 
-export const MAX_L = 10;      // größter Batch in Litern
-export const FILL = 0.95;     // max. Füllgrad pro Gefäß (Luft zum Umrühren)
+export const MAX_L = 100;     // größter Batch in Litern
+
+// Worin abgefüllt wird. Jedes Gefäß wird voll gemacht, der Rest kommt ins letzte.
+export const CONTAINERS = [
+  { l: 7.5, label: 'Glas-Jar 7,5 L' },
+  { l: 5,   label: 'Glas-Jar 5 L' },
+  { l: 10,  label: 'Glas-Jar 10 L' },
+  { l: 1,   label: 'Flasche 1 L' },
+  { l: 0.7, label: 'Flasche 0,7 L' },
+  { l: 0.5, label: 'Flasche 0,5 L' },
+];
+export const isBottleSize = l => l < 2;
 
 export const UNITS = {
   cl:   { label: 'cl',   f: 1 },

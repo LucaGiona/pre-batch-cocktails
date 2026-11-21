@@ -4,7 +4,7 @@
 // Ins Jar kommt nur, was batch=true hat. Die Ziel-Liter beziehen sich nur auf den Jar-Inhalt.
 // Frische Zutaten (batch=false) werden pro Drink und für alle Drinks zusammen ausgewiesen.
 
-import { UNITS, MAX_L, FILL, isFresh, isBubbly } from './recipes.js';
+import { UNITS, MAX_L, isFresh, isBubbly, isBottleSize } from './recipes.js';
 import { fL, fMl, fNum, fAuto } from './utils.js';
 
 const toCl = i => i.amount * UNITS[i.unit].f;
@@ -51,14 +51,34 @@ export function compute(recipe, state) {
   const alcFreshCl = freshRows.reduce((s, r) => s + r.perCl * (+r.abv || 0) / 100, 0);
   const drinkAbv = (pourCl * abv / 100 + alcFreshCl) / (pourCl + freshCl) * 100;
 
-  // Auf wie viele Gefäße verteilen? (gleichmäßig)
-  const capMl = state.jarL * FILL * 1000;
-  const jars = Math.max(1, Math.ceil(totalMl / capMl - 1e-9));
+  const fill = fillPlan(totalMl, state.jarL);
 
   return {
     recipe, rows, freshRows, pourCl, freshCl, n, drinks, totalMl, abv, drinkAbv,
-    jars, perJar: totalMl / jars, maxCount, capped,
+    fill, maxCount, capped,
   };
+}
+
+// Abfüllen: volle Gefäße + ein Gefäß mit dem Rest (niemand füllt 0,93 Flaschen ab)
+export function fillPlan(totalMl, sizeL) {
+  const capMl = sizeL * 1000;
+  let full = Math.floor(totalMl / capMl + 1e-9);
+  let restMl = totalMl - full * capMl;
+  if (restMl < 1) restMl = 0;                    // Rundungsreste unter 1 ml ignorieren
+  return {
+    sizeL, capMl, full, restMl,
+    count: full + (restMl > 0 ? 1 : 0),
+    bottle: isBottleSize(sizeL),
+    roundUpL: restMl > 0 ? (full + 1) * sizeL : null,   // Menge für nur volle Gefäße
+  };
+}
+
+// z. B. „11 Flaschen à 0,7 L voll + 1 mit 0,30 L“ oder „1 Jar à 7,5 L mit 3,00 L“
+export function fillText(f) {
+  const noun = n => f.bottle ? (n === 1 ? 'Flasche' : 'Flaschen') : (n === 1 ? 'Jar' : 'Jars');
+  const size = `à ${fAuto(f.sizeL)} L`;
+  if (!f.full) return `1 ${noun(1)} ${size} mit ${fL(f.restMl)}`;
+  return `${f.full} ${noun(f.full)} ${size} voll` + (f.restMl ? ` + 1 mit ${fL(f.restMl)}` : '');
 }
 
 // Text für das Etikett am Jar / zum Kopieren
@@ -68,18 +88,19 @@ export function batchText(c, state) {
     `${c.recipe.name.toUpperCase()} – BATCH`,
     `Datum: ${new Date().toLocaleDateString('de-DE')}`,
     `Menge: ${fL(c.totalMl)} · ${drinks} Drinks`,
-    `Alkohol im Jar ≈ ${fNum(c.abv, 1)} % vol`,
+    `Alkohol im Batch ≈ ${fNum(c.abv, 1)} % vol`,
+    `Abfüllen: ${fillText(c.fill)}`,
     '',
-    'Ins Jar:',
+    'Batch:',
     ...c.rows.map(r => `– ${r.name}: ${fMl(r.ml)} (${fNum(r.bottles, 1)} × ${fAuto(r.bottle)} L)`),
     ...(c.freshRows.length ? [
       '',
-      `Frisch beim Service (für ${c.drinks} Drinks):`,
+      `Frisch zufügen – nicht im Batch (für ${c.drinks} Drinks):`,
       ...c.freshRows.map(r => `– ${r.name}: ${fAuto(+r.amount)} ${unitLabel(r)} pro Drink · gesamt ${fL(r.ml)}`
         + (r.bubbly ? ` (${Math.ceil(r.bottles - 1e-9)} × ${fAuto(r.bottle)} L)` : '')),
     ] : []),
     '',
-    `Service: ${fNum(c.pourCl, 1)} cl aus dem Jar`
+    `Service: ${fNum(c.pourCl, 1)} cl aus dem Batch`
       + c.freshRows.map(r => ` + ${fAuto(+r.amount)} ${unitLabel(r)} ${r.name}`).join(''),
   ].join('\n');
 }

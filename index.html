@@ -35,7 +35,7 @@
   </section>
 
   <section class="card" id="step2">
-    <h2><span class="n">2</span>Menge</h2>
+    <h2><span class="n">2</span>Batch-Menge</h2>
     <div class="seg" role="group" aria-label="Berechnen nach">
       <button data-mode="vol" aria-pressed="true">Nach Volumen</button>
       <button data-mode="count" aria-pressed="false">Nach Anzahl Drinks</button>
@@ -43,15 +43,19 @@
 
     <div id="volBox">
       <div class="bigrow">
-        <div class="bignum"><input id="volInput" type="number" inputmode="decimal" min="0.5" max="10" step="0.1" aria-label="Zielvolumen in Liter"><span class="u">Liter</span></div>
+        <div class="bignum"><input id="volInput" type="number" inputmode="decimal" min="0.5" max="100" step="0.1" aria-label="Batch-Menge in Liter"><span class="u">Liter</span></div>
         <div class="presets" id="volPresets">
           <button class="btn" data-l="5">5 L</button>
           <button class="btn" data-l="7">7 L</button>
-          <button class="btn" data-l="7.5">7,5 L</button>
           <button class="btn" data-l="10">10 L</button>
+          <button class="btn" data-l="20">20 L</button>
+          <button class="btn" data-l="50">50 L</button>
+          <button class="btn" data-l="100">100 L</button>
         </div>
       </div>
-      <input id="volRange" type="range" min="0.5" max="10" step="0.1" aria-label="Zielvolumen">
+      <input id="volRange" type="range" min="0" max="1000" step="1" aria-label="Batch-Menge">
+      <div class="range-scale"><span>0,5 L</span><span>10 L</span><span>100 L</span></div>
+      <p class="hint" id="volNote"></p>
     </div>
 
     <div id="countBox" hidden>
@@ -60,20 +64,14 @@
         <div class="bignum"><input id="countInput" type="number" inputmode="numeric" min="1" step="1" aria-label="Anzahl Drinks"><span class="u">Drinks</span></div>
         <button class="btn" data-step="10">+10</button>
       </div>
-      <p class="hint" id="countMax"></p>
+      <p class="hint" id="countNote"></p>
     </div>
   </section>
 
   <section class="card" id="step3">
-    <h2><span class="n">3</span>Gefäß</h2>
-    <select id="jarSel" aria-label="Gefäß">
-      <option value="7.5">Glas-Jar 7,5 L</option>
-      <option value="5">Glas-Jar 5 L</option>
-      <option value="10">Glas-Jar 10 L</option>
-      <option value="1">Flaschen à 1 L</option>
-      <option value="0.7">Flaschen à 0,7 L</option>
-    </select>
-    <p class="hint">Füllgrenze: 95 % des Gefäßes – ein bisschen Luft zum Umrühren.</p>
+    <h2><span class="n">3</span>Abfüllen in</h2>
+    <select id="jarSel" aria-label="Abfüllen in"></select>
+    <p class="hint"><span class="note-label">Bemerkung:</span> Jedes Gefäß wird voll gemacht, der Rest kommt ins letzte.</p>
   </section>
 
   <section class="card" id="result" aria-live="polite"></section>
@@ -94,7 +92,7 @@
       <div id="edIngs"></div>
       <button class="btn ghost" id="edAdd" style="margin-top:10px">+ Zutat</button>
     </div>
-    <p class="hint"><b>Jar</b> = wird gebatcht. <b>Frisch</b> = kommt erst beim Service dazu (Säfte, Soda, Limo, Tonic, Sekt, Eiweiß …). Die App erkennt das am Namen – du kannst es jederzeit umstellen. Die Flaschengröße steuert die Flaschen-Rechnung.</p>
+    <p class="hint"><b>Batch</b> = wird vorgemischt. <b>Frisch</b> = kommt erst beim Service dazu (Säfte, Soda, Limo, Tonic, Sekt, Eiweiß …). Die App erkennt das am Namen – du kannst es jederzeit umstellen. Die Flaschengröße steuert die Flaschen-Rechnung.</p>
     <div class="confirm" id="edConfirm"><span>Rezept wirklich löschen?</span><span><button class="btn" id="edConfirmNo">Abbrechen</button> <button class="btn danger" id="edConfirmYes">Löschen</button></span></div>
     <div class="sheet-foot">
       <button class="btn danger" id="edDelete">Löschen</button>

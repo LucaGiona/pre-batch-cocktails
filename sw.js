@@ -6,7 +6,7 @@
 // installiert die neue Version im Hintergrund und nimmt sie beim nächsten Öffnen.
 // Ohne VERSION zu erhöhen, sieht niemand die Änderungen!
 
-const VERSION = 'v6';
+const VERSION = 'v9';
 const SHELL = `prebatch-shell-${VERSION}`;
 
 const SHELL_FILES = [
@@ -33,7 +33,14 @@ const OPTIONAL_FILES = [
 
 const fresh = f => new Request(f, { cache: 'reload' });
 
+// Beim Entwickeln (localhost, Live Server) räumt sich der Service Worker selbst weg:
+// Cache löschen, abmelden, alles direkt vom Server laden. Nur mit ?dev-offline bleibt er.
+const DEV = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+  && !new URL(location.href).searchParams.has('dev-offline');
+
+
 self.addEventListener('install', event => {
+  if (DEV) { self.skipWaiting(); return; }
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL);
     try {
@@ -48,6 +55,16 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
+  if (DEV) {
+    event.waitUntil((async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter(k => k.startsWith('prebatch-shell-')).map(k => caches.delete(k)));
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach(c => c.navigate(c.url));   // Seite einmal frisch vom Server laden
+    })());
+    return;
+  }
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k.startsWith('prebatch-shell-') && k !== SHELL).map(k => caches.delete(k))))
@@ -57,6 +74,7 @@ self.addEventListener('activate', event => {
 
 // App-Dateien: sofort aus dem Zwischenspeicher (schneller Start, offline), sonst Netz
 self.addEventListener('fetch', event => {
+  if (DEV) return;                               // Entwicklung: immer direkt vom Server
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);

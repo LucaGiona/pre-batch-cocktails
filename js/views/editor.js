@@ -1,7 +1,7 @@
 // Editor-Fenster: Rezept anlegen, bearbeiten, löschen.
 // Gibt über Callbacks Bescheid – die Daten selbst verwaltet main.js.
 //
-// Pro Zutat ein Umschalter „Jar | Frisch“. Solange man ihn nicht selbst anfasst,
+// Pro Zutat ein Umschalter „Batch | Frisch“. Solange man ihn nicht selbst anfasst,
 // stellt er sich beim Tippen des Namens automatisch ein (Limettensaft → Frisch).
 
 import { UNITS, BOTTLES, GLASSES, ing, isFresh, defaultGlass } from '../recipes.js';
@@ -18,7 +18,7 @@ const bottleOptions = sel => BOTTLES
 
 function roleToggle(batch, auto) {
   return `<div class="role" role="group" aria-label="Wohin" data-auto="${auto ? 1 : 0}">
-    <button type="button" data-role="jar" aria-pressed="${batch}">Jar</button>
+    <button type="button" data-role="jar" aria-pressed="${batch}">Batch</button>
     <button type="button" data-role="fresh" aria-pressed="${!batch}">Frisch</button>
   </div>`;
 }

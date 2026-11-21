@@ -1,7 +1,6 @@
 // SVG-Grafiken: Jar, Flasche, Gläser (Tumbler, Highball, Martini) und Glas-Icons für den Editor.
 // Reine Funktionen, die SVG-Text zurückgeben – kein DOM-Zugriff.
 
-import { FILL } from '../recipes.js';
 import { esc, fNum } from '../utils.js';
 
 export const BATCH_COLOR = '#e0457b';   // Farbe des Batches: Jar, Flasche, untere Glasschicht
@@ -12,34 +11,32 @@ const clamp01 = x => Math.max(0, Math.min(1, x));
 /* ---------- Gefäße ---------- */
 
 function jar(fill, key) {
-  const top = 14, bodyH = 68, fh = clamp01(fill) * bodyH, line = top + bodyH * (1 - FILL);
+  const top = 14, bodyH = 68, fh = clamp01(fill) * bodyH;
   return `<svg width="60" height="86" viewBox="0 0 60 86" aria-hidden="true">
     <rect x="16" y="2" width="28" height="10" rx="2" fill="#5a4b3f"/>
     <clipPath id="c${key}"><rect x="6" y="${top}" width="48" height="${bodyH}" rx="9"/></clipPath>
     <rect x="6" y="${top + bodyH - fh}" width="48" height="${fh}" fill="${BATCH_COLOR}" clip-path="url(#c${key})"/>
-    <line x1="6" x2="54" y1="${line}" y2="${line}" stroke="${LINE}" stroke-dasharray="3 3"/>
     <rect x="6" y="${top}" width="48" height="${bodyH}" rx="9" fill="none" stroke="${LINE}" stroke-width="1.5"/>
   </svg>`;
 }
 
 function bottle(fill, key) {
   // Innenraum von der Schulter (y 26) bis zum Boden (y 93)
-  const top = 26, bottom = 93, h = bottom - top, fh = clamp01(fill) * h, line = bottom - h * FILL;
+  const top = 26, bottom = 93, h = bottom - top, fh = clamp01(fill) * h;
   const shape = 'M16 10H24V26Q24 30 30 34Q35 37 35 44V88Q35 93 30 93H10Q5 93 5 88V44Q5 37 10 34Q16 30 16 26Z';
   return `<svg width="40" height="96" viewBox="0 0 40 96" aria-hidden="true">
     <rect x="14.5" y="2" width="11" height="9" rx="1.5" fill="#5a4b3f"/>
     <clipPath id="c${key}"><path d="${shape}"/></clipPath>
     <rect x="0" y="${bottom - fh}" width="40" height="${fh}" fill="${BATCH_COLOR}" clip-path="url(#c${key})"/>
-    <line x1="5" x2="35" y1="${line}" y2="${line}" stroke="${LINE}" stroke-dasharray="3 3" clip-path="url(#c${key})"/>
     <path d="${shape}" fill="none" stroke="${LINE}" stroke-width="1.5"/>
   </svg>`;
 }
 
 // Ein Gefäß mit Beschriftung darunter. kind: 'jar' | 'bottle'
-export function containerSvg(kind, fill, label, key, scale = 1) {
+export function containerSvg(kind, fill, label, key, scale = 1, extraClass = '') {
   const svg = (kind === 'bottle' ? bottle : jar)(fill, key)
     .replace(/width="(\d+)" height="(\d+)"/, (_, w, h) => `width="${w * scale}" height="${h * scale}"`);
-  return `<div class="jar">${svg}${label}</div>`;
+  return `<div class="jar ${extraClass}">${svg}${label}</div>`;
 }
 
 /* ---------- Gläser ---------- */
