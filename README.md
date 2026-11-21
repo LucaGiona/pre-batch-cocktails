@@ -5,7 +5,7 @@ Cocktail-Rezepturen auf Batch-Mengen hochrechnen, z. B. einen Negroni auf 7 Lite
 
 ## Was die App kann
 
-- Rezept wählen (Negroni, Boulevardier, Manhattan, Old Fashioned, Americano, Margarita,
+- Rezept aus einer Auswahlliste wählen, nach ABC sortiert (Negroni, Boulevardier, Manhattan, Old Fashioned, Americano, Margarita,
   Whiskey Sour, Paloma)
   oder eigene anlegen. Einheiten: cl, ml, Dash (≈ 0,8 ml), Barlöffel (≈ 5 ml).
 - **Batch-Menge** nach Volumen (0,5–100 L) oder nach Anzahl Drinks. Der Regler hat bis 10 L

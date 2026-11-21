@@ -27,7 +27,10 @@
 
   <section class="card" id="step1">
     <h2><span class="n">1</span>Rezept</h2>
-    <div class="chips" id="recipeChips" role="toolbar" aria-label="Rezepte"></div>
+    <div class="recipe-pick">
+      <select id="recipeSel" aria-label="Rezept"></select>
+      <button class="btn" id="addRecipe">+ Eigenes</button>
+    </div>
     <div class="recipe-line">
       <span id="recipeSpec"></span>
       <button class="btn ghost" id="editBtn">Bearbeiten</button>

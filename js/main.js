@@ -28,10 +28,13 @@ if (!CONTAINERS.some(c => c.l === +state.jarL)) state.jarL = 7.5;
 
 /* ---------- Zeichnen ---------- */
 
-function renderChips() {
-  $('#recipeChips').innerHTML = recipes.map(r =>
-    `<button class="chip" data-id="${esc(r.id)}" aria-pressed="${r.id === state.currentId}">${esc(r.name)}</button>`
-  ).join('') + '<button class="chip add" id="addRecipe">+ Eigenes Rezept</button>';
+// Rezepte als Auswahlliste, nach ABC (deutsch: Ä bei A, Groß/klein egal)
+const byName = (a, b) => a.name.localeCompare(b.name, 'de', { sensitivity: 'base' });
+
+function renderRecipePick() {
+  $('#recipeSel').innerHTML = [...recipes].sort(byName).map(r =>
+    `<option value="${esc(r.id)}"${r.id === state.currentId ? ' selected' : ''}>${esc(r.name)}</option>`
+  ).join('');
 
   const r = current();
   $('#recipeSpec').innerHTML = r ? r.ings.filter(i => i.name).map(i =>
@@ -61,7 +64,7 @@ function renderOutput() {
 }
 
 function renderAll() {
-  renderChips();
+  renderRecipePick();
   renderInputs();
   renderOutput();
   save(recipes, state);
@@ -72,13 +75,8 @@ function renderAll() {
 const setVol = v => { v = num(v); if (v) state.targetL = Math.min(MAX_L, Math.max(0.5, Math.round(v * 10) / 10)); };
 const setCount = v => { v = Math.round(num(v)); state.count = Math.max(1, v); };
 
-$('#recipeChips').addEventListener('click', e => {
-  const b = e.target.closest('.chip');
-  if (!b) return;
-  if (b.id === 'addRecipe') return openEditor(null);
-  state.currentId = b.dataset.id;
-  renderAll();
-});
+$('#recipeSel').addEventListener('change', e => { state.currentId = e.target.value; renderAll(); });
+$('#addRecipe').addEventListener('click', () => openEditor(null));
 $('#editBtn').addEventListener('click', () => openEditor(current()));
 
 // Umschalten Volumen ↔ Anzahl: den anderen Wert passend mitnehmen
