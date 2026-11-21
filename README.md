@@ -18,6 +18,12 @@ Cocktail-Rezepturen auf Batch-Mengen hochrechnen, z. B. einen Negroni auf 7 Lite
 - **Jar | Frisch** pro Zutat: Säfte, Soda, Limo, Tonic, Sekt, Eiweiß, Kräuter kommen nie ins Jar,
   sondern frisch beim Service dazu. Die App erkennt das am Namen (`isFresh` in `js/recipes.js`),
   umstellen geht jederzeit von Hand.
+- Erkennt auch Schaumwein (Sekt, Prosecco, Champagner/Champagne, Cava, Crémant, Spumante,
+  Franciacorta, Lambrusco, Perlwein, Frizzante, Sparkling) und Bitter Lemon als frisch.
+  Liköre wie Limoncello und Bitters bleiben im Batch.
+- **Einkauf:** Bei Säften und Eiweiß schätzt die App die Anzahl Früchte bzw. Eier
+  (Limette ≈ 2,5 cl, Zitrone ≈ 4 cl, Orange ≈ 8 cl, Grapefruit ≈ 15 cl, Eiweiß ≈ 3 cl pro Ei),
+  bei Soda & Schaumwein die Flaschen. Werte in `YIELDS` in `js/recipes.js`.
 - Ergebnis in zwei Blöcken: **Ins Jar** (die Ziel-Liter gelten nur dafür) und
   **Frisch beim Service** (pro Drink + gesamt für alle Drinks, bei Soda & Co. ganze Flaschen).
 - Alkohol im Jar und im fertigen Glas (ohne Schmelzwasser).

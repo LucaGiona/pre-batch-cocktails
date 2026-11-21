@@ -4,7 +4,7 @@
 // Ins Jar kommt nur, was batch=true hat. Die Ziel-Liter beziehen sich nur auf den Jar-Inhalt.
 // Frische Zutaten (batch=false) werden pro Drink und für alle Drinks zusammen ausgewiesen.
 
-import { UNITS, MAX_L, isFresh, isBubbly, isBottleSize } from './recipes.js';
+import { UNITS, MAX_L, isFresh, isBubbly, isBottleSize, fruitNeed } from './recipes.js';
 import { fL, fMl, fNum, fAuto } from './utils.js';
 
 const toCl = i => i.amount * UNITS[i.unit].f;
@@ -40,7 +40,7 @@ export function compute(recipe, state) {
 
   const freshRows = fresh.map(i => {
     const ml = toCl(i) * 10 * drinks;
-    return { ...i, perCl: toCl(i), ml, bubbly: isBubbly(i.name), bottles: ml / (i.bottle * 1000) };
+    return { ...i, perCl: toCl(i), ml, bubbly: isBubbly(i.name), bottles: ml / (i.bottle * 1000), fruit: fruitNeed(i.name, ml) };
   });
 
   const alcMl = rows.reduce((s, r) => s + r.ml * (+r.abv || 0) / 100, 0);
@@ -97,7 +97,8 @@ export function batchText(c, state) {
       '',
       `Frisch zufügen – nicht im Batch (für ${c.drinks} Drinks):`,
       ...c.freshRows.map(r => `– ${r.name}: ${fAuto(+r.amount)} ${unitLabel(r)} pro Drink · gesamt ${fL(r.ml)}`
-        + (r.bubbly ? ` (${Math.ceil(r.bottles - 1e-9)} × ${fAuto(r.bottle)} L)` : '')),
+        + (r.bubbly ? ` (${Math.ceil(r.bottles - 1e-9)} × ${fAuto(r.bottle)} L)` : '')
+        + (r.fruit ? ` (≈ ${r.fruit.count} ${r.fruit.label})` : '')),
     ] : []),
     '',
     `Service: ${fNum(c.pourCl, 1)} cl aus dem Batch`

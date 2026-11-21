@@ -25,16 +25,38 @@ export const BOTTLES = [0.2, 0.33, 0.5, 0.7, 0.75, 1, 1.5];
 
 // Frische Zutaten kommen nie ins Jar, sondern beim Service frisch dazu.
 // Säfte, alles mit Kohlensäure, Eiweiß & Milchprodukte, frische Kräuter.
-const FRESH = /(saft|juice|limett|zitron|lime|lemon|grapefruit|orange|ananas|soda|tonic|limo|ginger ?(beer|ale)|cola|sprite|sekt|prosecco|champagner|cava|crémant|cremant|eiwei|aquafaba|\bei\b|sahne|cream|milch|minze|mint|basilikum|gurke)/i;
+// Schaumweine und alles mit Kohlensäure (eine Liste für beide Erkennungen unten)
+const SPARKLING = 'soda|tonic|bitter lemon|limo|ginger ?(beer|ale)|cola|sprite|sekt|prosecco|champagn|\\bcava\\b|cr[eé]mant|spumante|franciacorta|lambrusco|schaumwein|perlwein|frizzante|sparkling';
+
+const FRESH = new RegExp(`(saft|juice|limett|zitron|lime|lemon|grapefruit|orange|ananas|${SPARKLING}|eiwei|aquafaba|\\bei\\b|sahne|cream|milch|minze|mint|basilikum|gurke)`, 'i');
 
 // Sirupe, Liköre & Co. enthalten manchmal diese Wörter, bleiben aber im Jar
-const NOT_FRESH = /(sirup|syrup|likör|liqueur|cordial|bitter|curaçao|curacao|cointreau|triple sec)/i;
+const NOT_FRESH = /(sirup|syrup|likör|liqueur|limoncello|cordial|bitters|angostura|peychaud|curaçao|curacao|cointreau|triple sec)/i;
 
 export const isFresh = name => FRESH.test(name) && !NOT_FRESH.test(name);
 
 // Mit Kohlensäure → hier ist die Flaschenrechnung sinnvoll
-const BUBBLY = /(soda|tonic|limo|ginger|cola|sprite|sekt|prosecco|champagner|cava|crémant|cremant)/i;
+const BUBBLY = new RegExp(`(${SPARKLING})`, 'i');
 export const isBubbly = name => BUBBLY.test(name);
+
+// Ausbeute frischer Zutaten, grob geschätzt (Durchschnitt, frisch gepresst).
+// Säfte nur, wenn „saft“/„juice“ im Namen steht – Grapefruit-Limo zählt nicht.
+const YIELDS = [
+  { re: /(limett|\blime)/i,  juice: true,  ml: 25,  one: 'Limette',    many: 'Limetten' },
+  { re: /(zitron|lemon)/i,    juice: true,  ml: 40,  one: 'Zitrone',    many: 'Zitronen' },
+  { re: /grapefruit/i,        juice: true,  ml: 150, one: 'Grapefruit', many: 'Grapefruits' },
+  { re: /orange/i,            juice: true,  ml: 80,  one: 'Orange',     many: 'Orangen' },
+  { re: /(eiwei|egg white)/i, juice: false, ml: 30,  one: 'Ei',         many: 'Eier' },
+];
+
+// Wie viele Früchte/Eier für diese Menge? → { count, label, perMl } oder null
+export function fruitNeed(name, ml) {
+  const isJuice = /(saft|juice)/i.test(name);
+  const y = YIELDS.find(y => y.re.test(name) && (!y.juice || isJuice));
+  if (!y || ml <= 0) return null;
+  const count = Math.ceil(ml / y.ml - 1e-9);
+  return { count, label: count === 1 ? y.one : y.many, perMl: y.ml, one: y.one };
+}
 
 // Drei Gläser zur Auswahl pro Rezept
 export const GLASSES = [

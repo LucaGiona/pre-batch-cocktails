@@ -1,6 +1,6 @@
 // Ergebnis-Karte: Kennzahlen, Batch-Tabelle, „Frisch zufügen“, Grafik, Hinweise.
 
-import { UNITS, MAX_L, defaultGlass } from '../recipes.js';
+import { UNITS, MAX_L, defaultGlass, isBubbly } from '../recipes.js';
 import { esc, fAuto, fInt, fL, fMl, fNum } from '../utils.js';
 import { fillText } from '../calc.js';
 import { BATCH_COLOR, containerSvg, glassSvg } from './graphics.js';
@@ -21,7 +21,7 @@ const FRESH_COLORS = [
   [/(zitron|lemon)/i, '#e8d27a'],                              // gelb
   [/(limett|lime|minze|mint|basilikum|gurke)/i, '#7fb38a'],    // grün
   [/(grapefruit|orange|blutorange)/i, '#f0a27a'],              // orange
-  [/(soda|tonic|limo|ginger|cola|sprite|sekt|prosecco|champagner|cava|cr.mant)/i, '#9cc3d6'], // blau
+  [{ test: isBubbly }, '#9cc3d6'],                              // blau: Kohlensäure & Schaumwein
 ];
 const FALLBACK = ['#b9a3d9', '#a3d9c9', '#d9c9a3'];
 function freshColors(rows) {
@@ -110,22 +110,34 @@ function jarTable(c, state) {
     </table>`;
 }
 
+// Einkauf: Flaschen bei Kohlensäure/Schaumwein, Früchte bzw. Eier bei Säften und Eiweiß
+function buyCell(r) {
+  if (r.fruit) return `<span class="main">≈ ${fInt(r.fruit.count)}</span><span class="alt">${r.fruit.label}</span>`;
+  if (r.bubbly) return `<span class="main">${fInt(Math.ceil(r.bottles - 1e-9))}</span><span class="alt">× ${fAuto(r.bottle)} L</span>`;
+  return '';
+}
+
 function freshTable(c) {
   if (!c.freshRows.length) return '';
   const rows = c.freshRows.map(r => `
     <tr>
       <td>${esc(r.name)}<span class="alt">${amount(r)} pro Drink</span></td>
       <td><span class="main">${fL(r.ml)}</span><span class="alt">für ${fInt(c.drinks)} Drinks</span></td>
-      <td>${r.bubbly ? `<span class="main">${fInt(Math.ceil(r.bottles - 1e-9))}</span><span class="alt">× ${fAuto(r.bottle)} L</span>` : ''}</td>
+      <td>${buyCell(r)}</td>
     </tr>`).join('');
+  const fruits = c.freshRows.filter(r => r.fruit);
+  const yieldNote = fruits.length
+    ? `<p class="hint"><span class="note-label">Bemerkung:</span> Ausbeute geschätzt: ${fruits.map(r => `1 ${r.fruit.one} ≈ ${fNum(r.fruit.perMl / 10, 1)} cl`).join(', ')}. Je nach Größe und Saison lieber ein paar mehr einplanen.</p>`
+    : '';
   return `
     <div class="fresh-block">
       <h3 class="block-title">Frisch zufügen</h3>
       <p class="block-sub"><span class="no-batch">nicht im Batch</span> pro Drink beim Service frisch dazugeben</p>
       <table>
-        <thead><tr><th>Zutat</th><th>Gesamt</th><th>Flaschen</th></tr></thead>
+        <thead><tr><th>Zutat</th><th>Gesamt</th><th>Einkauf</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
+      ${yieldNote}
     </div>`;
 }
 

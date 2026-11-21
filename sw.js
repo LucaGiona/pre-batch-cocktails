@@ -6,7 +6,7 @@
 // installiert die neue Version im Hintergrund und nimmt sie beim nächsten Öffnen.
 // Ohne VERSION zu erhöhen, sieht niemand die Änderungen!
 
-const VERSION = 'v9';
+const VERSION = 'v11';
 const SHELL = `prebatch-shell-${VERSION}`;
 
 const SHELL_FILES = [
