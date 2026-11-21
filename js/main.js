@@ -1,7 +1,7 @@
 // Start: Zustand laden, Ansicht zeichnen, Eingaben verdrahten, Service Worker anmelden.
 
-import { MAX_L, UNITS } from './recipes.js';
-import { $, $$, esc, fAuto, fInt, num, toast } from './utils.js';
+import { MAX_L, UNITS, CONTAINERS } from './recipes.js';
+import { $, $$, esc, fAuto, fInt, fL, fNum, num, toast } from './utils.js';
 import { loadRecipes, loadState, save, defaultRecipes } from './storage.js';
 import { compute, batchText } from './calc.js';
 import { renderResult } from './views/result.js';
@@ -14,6 +14,18 @@ if (!recipes.some(r => r.id === state.currentId)) state.currentId = recipes[0].i
 const current = () => recipes.find(r => r.id === state.currentId);
 let last = null; // letztes Rechenergebnis (für Kopieren)
 
+/* ---------- Regler: 0–500 = 0,5–10 L (feine Schritte), 500–1000 = 10–100 L ---------- */
+
+const sliderToL = v => {
+  v = +v;
+  if (v <= 500) return Math.round((0.5 + v / 500 * 9.5) * 10) / 10;
+  return Math.round((10 + (v - 500) / 500 * 90) * 2) / 2;
+};
+const lToSlider = l => l <= 10 ? (l - 0.5) / 9.5 * 500 : 500 + (l - 10) / 90 * 500;
+
+$('#jarSel').innerHTML = CONTAINERS.map(c => `<option value="${c.l}">${c.label}</option>`).join('');
+if (!CONTAINERS.some(c => c.l === +state.jarL)) state.jarL = 7.5;
+
 /* ---------- Zeichnen ---------- */
 
 function renderChips() {
@@ -23,7 +35,7 @@ function renderChips() {
 
   const r = current();
   $('#recipeSpec').innerHTML = r ? r.ings.filter(i => i.name).map(i =>
-    `<b>${fAuto(+i.amount)} ${UNITS[i.unit].label}</b> ${esc(i.name)}${i.batch ? '' : ' <span class="tag">Service</span>'}`
+    `<b>${fAuto(+i.amount)} ${UNITS[i.unit].label}</b> ${esc(i.name)}${i.batch ? '' : ' <span class="tag">frisch</span>'}`
   ).join(' · ') : '';
 }
 
@@ -32,7 +44,7 @@ function renderInputs() {
   $('#volBox').hidden = state.mode !== 'vol';
   $('#countBox').hidden = state.mode !== 'count';
   $('#volInput').value = state.targetL;
-  $('#volRange').value = state.targetL;
+  $('#volRange').value = lToSlider(state.targetL);
   $$('#volPresets .btn').forEach(b => b.setAttribute('aria-pressed', +b.dataset.l === +state.targetL));
   $('#countInput').value = state.count;
   $('#jarSel').value = String(state.jarL);
@@ -41,7 +53,11 @@ function renderInputs() {
 function renderOutput() {
   last = compute(current(), state);
   renderResult($('#result'), last, state);
-  $('#countMax').textContent = last && !last.empty ? `Max. ${fInt(last.maxCount)} Drinks bei ${MAX_L} L.` : '';
+  // Bemerkung unter der Batch-Menge: bei Litern die Drinks, bei Drinks die Liter
+  const ok = last && !last.empty;
+  const label = '<span class="note-label">Bemerkung:</span> ';
+  $('#volNote').innerHTML = ok ? `${label}≈ ${fInt(last.drinks)} Drinks à ${fNum(last.pourCl, 1)} cl aus dem Batch` : '';
+  $('#countNote').innerHTML = ok ? `${label}${fL(last.totalMl)} Batch · max. ${fInt(last.maxCount)} Drinks bei ${MAX_L} L` : '';
 }
 
 function renderAll() {
@@ -76,7 +92,7 @@ $$('.seg button').forEach(b => b.addEventListener('click', () => {
 }));
 
 $('#volRange').addEventListener('input', e => {
-  setVol(e.target.value);
+  setVol(sliderToL(e.target.value));
   $('#volInput').value = state.targetL;
   $$('#volPresets .btn').forEach(b => b.setAttribute('aria-pressed', +b.dataset.l === +state.targetL));
   renderOutput();
@@ -111,6 +127,8 @@ $('#result').addEventListener('click', async e => {
       ta.remove();
     }
   }
+  const round = e.target.closest('#roundUp');
+  if (round) { setVol(round.dataset.l); renderAll(); return; }
   if (e.target.id === 'printBtn') {
     try { window.print(); } catch { toast('Drucken hier nicht möglich'); }
   }
@@ -137,10 +155,17 @@ initEditor({
 });
 
 /* ---------- Offline (PWA) ---------- */
+// Beim Entwickeln (localhost, Live Server) KEIN Service Worker: Sonst liefert der Cache
+// alte oder halb aktualisierte Dateien und die Seite bleibt leer. Ein vorhandener wird
+// entfernt und sein Cache gelöscht (Rezepte im localStorage bleiben unberührt).
+// Offline lokal testen: Adresse mit ?offline aufrufen, z. B. http://localhost:5500/?offline
 
 const net = $('#netStatus');
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(() => {
+const isDev = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+const wantSW = 'serviceWorker' in navigator && (!isDev || new URLSearchParams(location.search).has('offline'));
+
+if (wantSW) {
+  navigator.serviceWorker.register(isDev ? 'sw.js?dev-offline' : 'sw.js').then(() => {
     net.classList.add('on');
     net.textContent = 'Offline bereit';
     addEventListener('online', () => { net.textContent = 'Offline bereit'; });
@@ -150,7 +175,18 @@ if ('serviceWorker' in navigator) {
     net.title = 'Offline-Modus nur über einen Webserver (nicht per Doppelklick)';
   });
 } else {
-  net.textContent = navigator.onLine ? 'Online' : 'Offline';
+  net.textContent = isDev ? 'Entwicklung' : (navigator.onLine ? 'Online' : 'Offline');
+  if (isDev) net.title = 'Lokal ohne Offline-Cache. Mit ?offline in der Adresse testen.';
+  if (isDev && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => Promise.all(regs.map(r => r.unregister())))
+      .catch(() => {});
+    if ('caches' in window) {
+      caches.keys()
+        .then(keys => Promise.all(keys.filter(k => k.startsWith('prebatch-shell-')).map(k => caches.delete(k))))
+        .catch(() => {});
+    }
+  }
 }
 
 renderAll();

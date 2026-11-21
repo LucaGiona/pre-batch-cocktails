@@ -65,7 +65,17 @@
   tr.total td{border-bottom:0;font-weight:600}
   .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:1px}
   .tag.warn{border-color:#6b3a2f;color:#e48b78}
-  .jars{display:flex;gap:14px;align-items:flex-end;margin:18px 0 6px;flex-wrap:wrap}
+  /* Grafik: Jar → Pfeil → Glas */
+  .flow{display:flex;align-items:flex-end;justify-content:flex-start;gap:8px;margin:22px 0 6px;flex-wrap:nowrap;padding:16px 10px 10px;background:var(--surface-2);border-radius:12px}
+  .flow-jars{display:flex;gap:6px;align-items:flex-end}
+  .flow-jars .jar{white-space:nowrap}
+  .flow-arrow{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:34px;font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
+  .flow-glass{display:flex;align-items:flex-end;gap:8px;padding-bottom:2px}
+  .flow-glass svg{display:block}
+  .times{white-space:nowrap;font-family:var(--serif);font-size:28px;font-weight:600;line-height:1;padding-bottom:18px;color:var(--accent)}
+  .times small{display:block;font-family:var(--sans);font-size:12px;font-weight:400;color:var(--muted);margin-top:2px}
+  .legend{display:flex;flex-wrap:wrap;justify-content:flex-start;padding-left:4px;gap:6px 14px;font-size:12px;color:var(--muted);margin:8px 0 4px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
   .jar{text-align:center;font-size:12px;color:var(--muted)}
   .jar svg{display:block;margin:0 auto 4px}
   .notes{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
@@ -83,11 +93,9 @@
   .sheet{background:var(--surface);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
   @media (min-width:640px){.sheet{border-radius:18px}}
   .sheet h3{font-family:var(--serif);font-size:22px;margin:0 0 14px}
-  .ing{display:grid;grid-template-columns:1fr 78px 82px 70px 64px 34px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .ing{display:grid;grid-template-columns:1fr 78px 82px 70px 34px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
   .ing-head{font-size:11px;color:var(--muted);border-bottom:0;padding-bottom:0}
   .ing input,.ing select{padding:8px 7px;font-size:14px}
-  .ing .chk{display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muted)}
-  .ing .chk input{width:18px;height:18px;accent-color:var(--accent)}
   .x{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;padding:4px}
   .x:hover{color:var(--red)}
   @media (max-width:600px){
@@ -108,11 +116,53 @@
 
   @media print{
     body{background:#fff;color:#000}
-    header .status,#step1,#step2,#step3,.actions,footer,.jars{display:none!important}
+    header .status,#step1,#step2,#step3,.actions,footer{display:none!important}
+    .flow{background:#f2f2f2}
     section.card{border:0;background:#fff;padding:0}
     .stat{background:#f2f2f2}
     td,th{border-color:#ccc;color:#000}
     .notes li{background:#f6f6f6}
   }
-  .bottle-row{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
-  .bottle-row select{width:auto;padding:4px 8px;font-size:13px}
+  /* Editor: Jar | Frisch */
+  .ing-foot{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .ing-foot .bottle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .ing-foot select{width:auto;padding:4px 8px;font-size:13px}
+  .role{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .role button{border:0;background:transparent;color:var(--muted);padding:5px 12px;font-size:13px}
+  .role [data-role="jar"][aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+  .role [data-role="fresh"][aria-pressed="true"]{background:var(--green);color:#10200f;font-weight:600}
+
+  /* Ergebnis: zwei Blöcke */
+  .block-title{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 4px}
+  .fresh-block{margin-top:8px;padding-top:4px;border-top:1px solid var(--line)}
+  .fresh-block .block-title{color:var(--green)}
+  .fresh-block .block-title .tag{text-transform:none;letter-spacing:0;font-weight:400}
+  .alt-inline{display:block;font-size:12px;color:var(--muted)}
+  @media (max-width:400px){
+    .flow{gap:4px;padding:14px 4px 10px}
+    .flow-arrow svg{width:34px}
+    .flow-jars{gap:4px}
+    .flow-glass{gap:4px}
+    .times{font-size:22px}
+    .times.big{font-size:18px}
+    .flow-jars svg{height:58px;width:auto}
+    .flow-jars .jar{font-size:11px}
+  }
+  /* Editor: Glas-Auswahl */
+  .glass-pick{display:flex;gap:8px;margin-top:2px}
+  .glass-pick button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);padding:6px 12px 6px 8px;border-radius:10px;font-size:14px}
+  .glass-pick button[aria-pressed="true"]{border-color:var(--accent);color:var(--text);font-weight:600}
+  .glass-pick button[aria-pressed="true"] svg{color:var(--accent)}
+  /* Regler-Skala und Abfüll-Zeile */
+  .range-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:-2px}
+  .range-scale span:nth-child(2){margin-left:-8px}
+  .fill-line{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;font-size:14px;margin:10px 0 4px}
+  .fill-line b{font-weight:600}
+  .fill-line .btn{font-size:13px;padding:6px 11px}
+  .jar.rest{color:var(--text)}
+  .times.big{font-size:21px}
+  /* Bemerkungen und „Frisch zufügen“ */
+  .note-label{color:var(--accent);font-weight:600}
+  .block-sub{font-size:13px;color:var(--muted);margin:2px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .no-batch{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--green);border:1px solid var(--green);border-radius:999px;padding:2px 9px}
+  .no-batch::before{content:"";width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;background:linear-gradient(135deg,transparent 45%,currentColor 45%,currentColor 58%,transparent 58%)}
