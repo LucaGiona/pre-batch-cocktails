@@ -6,7 +6,7 @@
 // installiert die neue Version im Hintergrund und nimmt sie beim nächsten Öffnen.
 // Ohne VERSION zu erhöhen, sieht niemand die Änderungen!
 
-const VERSION = 'v15';
+const VERSION = 'v21';
 const SHELL = `prebatch-shell-${VERSION}`;
 
 const SHELL_FILES = [
@@ -23,6 +23,8 @@ const SHELL_FILES = [
   'js/views/editor.js',
   'js/views/graphics.js',
   'js/views/recipe-picker.js',
+  'js/views/info.js',
+  'js/backup.js',
 ];
 
 // Schön, aber nicht nötig: Fehlt eine davon, läuft die App trotzdem offline

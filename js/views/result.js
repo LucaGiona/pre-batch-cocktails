@@ -1,11 +1,11 @@
 // Ergebnis-Karte: Kennzahlen, Batch-Tabelle, „Frisch zufügen“, Grafik, Hinweise.
 
-import { UNITS, MAX_L, defaultGlass, isBubbly } from '../recipes.js';
+import { UNITS, MAX_L, defaultGlass } from '../recipes.js';
 import { esc, fAuto, fInt, fL, fMl, fNum } from '../utils.js';
 import { fillText } from '../calc.js';
 import { BATCH_COLOR, containerSvg, glassSvg } from './graphics.js';
 
-const amount = i => `${fAuto(+i.amount)} ${UNITS[i.unit].label}`;
+const amount = i => `${fAuto(+i.amount)}\u00a0${UNITS[i.unit].label}`;
 
 // Pfeil vom Gefäß zum Glas, mit Menge pro Drink darüber
 function arrowSvg(label) {
@@ -15,24 +15,10 @@ function arrowSvg(label) {
   </svg></div>`;
 }
 
-// Farben der frischen Zutaten im Glas
-const FRESH_COLORS = [
-  [/(eiwei|aquafaba|sahne|cream|milch|\bei\b)/i, '#efe8dc'],  // cremig/weiß
-  [/(zitron|lemon)/i, '#e8d27a'],                              // gelb
-  [/(limett|lime|minze|mint|basilikum|gurke)/i, '#7fb38a'],    // grün
-  [/(grapefruit|orange|blutorange)/i, '#f0a27a'],              // orange
-  [{ test: isBubbly }, '#9cc3d6'],                              // blau: Kohlensäure & Schaumwein
-];
-const FALLBACK = ['#b9a3d9', '#a3d9c9', '#d9c9a3'];
-function freshColors(rows) {
-  const used = new Set();
-  return rows.map((r, k) => {
-    let col = (FRESH_COLORS.find(([re]) => re.test(r.name)) || [])[1];
-    if (!col || used.has(col)) col = FALLBACK.find(f => !used.has(f)) || FALLBACK[k % FALLBACK.length];
-    used.add(col);
-    return col;
-  });
-}
+// Frische Zutaten sind überall grün. Mehrere Schichten im Glas: verschiedene Grüntöne,
+// damit man sie noch auseinanderhält.
+const FRESH_GREENS = ['#7fb38a', '#b4d9ba', '#55895f', '#d6ecd9', '#3f6e49'];
+const freshColors = rows => rows.map((r, k) => FRESH_GREENS[k % FRESH_GREENS.length]);
 
 function legend(c, colors, bottleWord) {
   const items = [
@@ -45,7 +31,7 @@ function legend(c, colors, bottleWord) {
 // Abfüllen: volle Gefäße (ab 4 zusammengefasst) + ein Gefäß mit dem Rest
 function vessels(f) {
   const kind = f.bottle ? 'bottle' : 'jar';
-  const size = `${fAuto(f.sizeL)} L`;
+  const size = `${fAuto(f.sizeL)}\u00a0L`;
   const shown = (f.full > 3 ? 1 : f.full) + (f.restMl ? 1 : 0);
   const scale = shown > 1 ? 0.72 : 1;
   const out = [];
@@ -65,7 +51,7 @@ function flow(c) {
   const glass = c.recipe.glass || defaultGlass(c.recipe.ings);
   return `<div class="flow" aria-label="Aus dem Batch ins Glas">
     <div class="flow-jars">${vessels(c.fill)}</div>
-    ${arrowSvg(`${fNum(c.pourCl, 1)} cl`)}
+    ${arrowSvg(`${fNum(c.pourCl, 1)}\u00a0cl`)}
     <div class="flow-glass">${glassSvg(glass, layers)}<div class="times${c.drinks >= 1000 ? ' big' : ''}">× ${fInt(c.drinks)}<small>Drinks</small></div></div>
   </div>${legend(c, colors, 'dem Batch')}`;
 }
@@ -83,7 +69,7 @@ function fillLine(c, state) {
 
 function notes(c, state) {
   const out = [];
-  if (c.capped) out.push(['warn', `Maximal ${MAX_L} L pro Batch – auf ${fInt(c.maxCount)} Drinks begrenzt.`]);
+  if (c.capped) out.push(['warn', `Maximal ${MAX_L}\u00a0L pro Batch – auf ${fInt(c.maxCount)}\u00a0Drinks begrenzt.`]);
   const forced = c.rows.filter(r => r.forced).map(r => esc(r.name));
   if (forced.length)
     out.push(['warn', `${forced.join(', ')} ${forced.length > 1 ? 'sind' : 'ist'} im Batch. Frische Zutaten halten im Batch nur ca. 1 Tag – im Editor auf „Frisch“ stellen.`]);
@@ -98,7 +84,7 @@ function jarTable(c, state) {
       <td>${esc(r.name)}${r.forced ? '<span class="tag warn">frisch</span>' : ''}
         <span class="alt">${amount(r)} pro Drink${r.abv ? ' · ' + fAuto(+r.abv) + ' %' : ''}</span></td>
       <td><span class="main">${fL(r.ml)}</span><span class="alt">${fMl(r.ml)}</span></td>
-      <td><span class="main">${fNum(r.bottles, 1)}</span><span class="alt">× ${fAuto(r.bottle)} L</span></td>
+      <td><span class="main">${fNum(r.bottles, 1)}</span><span class="alt">×\u00a0${fAuto(r.bottle)}\u00a0L</span></td>
     </tr>`).join('');
   return `
     <h3 class="block-title">Batch</h3>
@@ -113,7 +99,7 @@ function jarTable(c, state) {
 // Einkauf: Flaschen bei Kohlensäure/Schaumwein, Früchte bzw. Eier bei Säften und Eiweiß
 function buyCell(r) {
   if (r.fruit) return `<span class="main">≈ ${fInt(r.fruit.count)}</span><span class="alt">${r.fruit.label}</span>`;
-  if (r.bubbly) return `<span class="main">${fInt(Math.ceil(r.bottles - 1e-9))}</span><span class="alt">× ${fAuto(r.bottle)} L</span>`;
+  if (r.bubbly) return `<span class="main">${fInt(Math.ceil(r.bottles - 1e-9))}</span><span class="alt">×\u00a0${fAuto(r.bottle)}\u00a0L</span>`;
   return '';
 }
 
@@ -122,12 +108,12 @@ function freshTable(c) {
   const rows = c.freshRows.map(r => `
     <tr>
       <td>${esc(r.name)}<span class="alt">${amount(r)} pro Drink</span></td>
-      <td><span class="main">${fL(r.ml)}</span><span class="alt">für ${fInt(c.drinks)} Drinks</span></td>
+      <td><span class="main">${fL(r.ml)}</span><span class="alt">für ${fInt(c.drinks)}\u00a0Drinks</span></td>
       <td>${buyCell(r)}</td>
     </tr>`).join('');
   const fruits = c.freshRows.filter(r => r.fruit);
   const yieldNote = fruits.length
-    ? `<p class="hint"><span class="note-label">Bemerkung:</span> Ausbeute geschätzt: ${fruits.map(r => `1 ${r.fruit.one} ≈ ${fNum(r.fruit.perMl / 10, 1)} cl`).join(', ')}. Je nach Größe und Saison lieber ein paar mehr einplanen.</p>`
+    ? `<p class="hint"><span class="note-label">Bemerkung:</span> Ausbeute geschätzt: ${fruits.map(r => `1 ${r.fruit.one} ≈ ${fNum(r.fruit.perMl / 10, 1)}\u00a0cl`).join(', ')}. Je nach Größe und Saison lieber ein paar mehr einplanen.</p>`
     : '';
   return `
     <div class="fresh-block">
@@ -149,7 +135,8 @@ export function renderResult(el, c, state) {
   }
 
   const drinks = state.mode === 'vol' ? '≈ ' + fInt(c.drinks) : fInt(c.drinks);
-  const freshPart = c.freshRows.map(r => ` + <b>${amount(r)}</b> ${esc(r.name)}`).join('');
+  // Jeder Teil (Menge + Zutat) bricht nur als Ganzes um
+  const freshPart = c.freshRows.map(r => ` <span class="nw">+ <b>${amount(r)}</b> ${esc(r.name)}</span>`).join('');
   const abvHint = c.freshRows.length ? `<span class="alt-inline">im Glas ≈ ${fNum(c.drinkAbv, 1)} %</span>` : '';
 
   el.innerHTML = `
@@ -164,7 +151,7 @@ export function renderResult(el, c, state) {
     ${freshTable(c)}
     ${flow(c)}
     ${fillLine(c, state)}
-    <div class="service">Pro Drink: <b>${fNum(c.pourCl, 1)} cl</b> aus dem Batch${freshPart}.</div>
+    <div class="service">Pro Drink: <span class="nw"><b>${fNum(c.pourCl, 1)}\u00a0cl</b> aus dem Batch</span>${freshPart}.</div>
     <ul class="notes">${notes(c, state).map(([cls, t]) => `<li class="${cls}">${t}</li>`).join('')}</ul>
     <div class="actions">
       <button class="btn primary" id="copyBtn">Batch-Zettel kopieren</button>

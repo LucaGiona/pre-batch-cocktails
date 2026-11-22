@@ -1,0 +1,237 @@
+{
+  "quelle": "Melody/Rezepturen.xlsx (Stand Sept. 2023)",
+  "hinweis": "Premix-Rezepte (Mojito, Negroni, Greenpoint, Monkey) sind in der Quelle nicht enthalten.",
+  "rezepte": [
+    {
+      "name": "Sous Vide Mojito",
+      "zutaten": [
+        {
+          "menge": 6,
+          "einheit": "cl",
+          "zutat": "Premix (Mojito)"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Limettensaft"
+        }
+      ],
+      "methode": "Shake, auf Crushed Ice",
+      "glas": "Marmeladenglas",
+      "filler": "Top mit Soda",
+      "deko": "Minzstrauch"
+    },
+    {
+      "name": "Glass Rested Negroni",
+      "zutaten": [
+        {
+          "menge": 10,
+          "einheit": "cl",
+          "zutat": "Premix (Negroni)"
+        }
+      ],
+      "methode": "Rühren, großer Eiswürfel",
+      "glas": "Tumbler",
+      "filler": null,
+      "deko": null
+    },
+    {
+      "name": "Penicillin",
+      "zutaten": [
+        {
+          "menge": 5,
+          "einheit": "cl",
+          "zutat": "Monkey Premix"
+        },
+        {
+          "menge": 3,
+          "einheit": "cl",
+          "zutat": "Zitronensaft"
+        },
+        {
+          "menge": 3,
+          "einheit": "cl",
+          "zutat": "Honig-Ingwer-Sirup-Mix"
+        }
+      ],
+      "methode": "Shake & double strain",
+      "glas": "Sour-Glas auf Würfeleis",
+      "filler": null,
+      "deko": "Getrocknete Orange"
+    },
+    {
+      "name": "Glass Rested Greenpoint",
+      "zutaten": [
+        {
+          "menge": 8,
+          "einheit": "cl",
+          "zutat": "Premix (Greenpoint)"
+        }
+      ],
+      "methode": "Rühren",
+      "glas": "Coupette „Old“",
+      "filler": null,
+      "deko": "Orangenzeste"
+    },
+    {
+      "name": "Blood & Sand",
+      "zutaten": [
+        {
+          "menge": 4,
+          "einheit": "cl",
+          "zutat": "Monkey Premix"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Cherry"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Orangensaft"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Wermut-Mix"
+        }
+      ],
+      "methode": "Shake & double strain",
+      "glas": "Coupette Champagner",
+      "filler": null,
+      "deko": "Orangenzeste"
+    },
+    {
+      "name": "Million $ Cocktail",
+      "zutaten": [
+        {
+          "menge": 1,
+          "einheit": null,
+          "zutat": "Eiweiß"
+        },
+        {
+          "menge": 0.5,
+          "einheit": "Scheibe (2 cm)",
+          "zutat": "Ananas, klein geschnitten und gemuddelt"
+        },
+        {
+          "menge": 5,
+          "einheit": "cl",
+          "zutat": "Gin"
+        },
+        {
+          "menge": 2.5,
+          "einheit": "cl",
+          "zutat": "Wermut-Mix"
+        },
+        {
+          "menge": 1,
+          "einheit": "Barlöffel",
+          "zutat": "Grenadine"
+        }
+      ],
+      "methode": "Shake & double strain",
+      "glas": "Coupette Champagner",
+      "filler": null,
+      "deko": null
+    },
+    {
+      "name": "Multi-Million $ Cocktail",
+      "zutaten": [
+        {
+          "menge": 0.5,
+          "einheit": "Scheibe (2 cm)",
+          "zutat": "Ananas, klein geschnitten und gemuddelt"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Honig-Ingwer-Sirup"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Limettensaft"
+        },
+        {
+          "menge": 4,
+          "einheit": "cl",
+          "zutat": "Mezcal"
+        },
+        {
+          "menge": 1,
+          "einheit": "cl",
+          "zutat": "Cynar"
+        }
+      ],
+      "methode": null,
+      "glas": "Coupette „Old“",
+      "filler": null,
+      "deko": null,
+      "offen": [
+        "Methode fehlt"
+      ]
+    },
+    {
+      "name": "Bonnie Prince Charlie",
+      "zutaten": [
+        {
+          "menge": 5,
+          "einheit": "cl",
+          "zutat": "Monkey Premix"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Honigsirup"
+        },
+        {
+          "menge": 3,
+          "einheit": "cl",
+          "zutat": "Sahne"
+        }
+      ],
+      "methode": "Shake & double strain",
+      "glas": "Coupette „Old“",
+      "filler": null,
+      "deko": "Muskatnuss"
+    },
+    {
+      "name": "Brandy Alexander",
+      "zutaten": [
+        {
+          "menge": 5,
+          "einheit": "cl",
+          "zutat": "Brandy"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Choco"
+        },
+        {
+          "menge": 2,
+          "einheit": "cl",
+          "zutat": "Sahne"
+        }
+      ],
+      "methode": "Shake & double strain",
+      "glas": "Coupette Champagner",
+      "filler": null,
+      "deko": "Muskatnuss"
+    },
+    {
+      "name": "Margarita",
+      "zutaten": [],
+      "methode": null,
+      "glas": "Coupette Champagner",
+      "filler": null,
+      "deko": null,
+      "offen": [
+        "Zutaten fehlen",
+        "Methode fehlt"
+      ]
+    }
+  ]
+}

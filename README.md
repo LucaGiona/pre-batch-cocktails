@@ -33,11 +33,20 @@ Cocktail-Rezepturen auf Batch-Mengen hochrechnen, z. B. einen Negroni auf 7 Lite
   sonst Tumbler. Im Martini-Glas werden die Schichten nach Volumen berechnet (Kegel).
 - Warnt, wenn eine frische Zutat bewusst ins Jar geschaltet ist.
 - Batch-Zettel kopieren (fürs Etikett am Jar) und drucken.
+- **ⓘ oben rechts:** App installieren (Knopf bei Chrome/Edge/Android, Anleitung fürs iPhone),
+  Sicherung speichern/einlesen, Über die App. Ein Punkt am ⓘ erinnert an die Sicherung, wenn es
+  eigene Rezepte gibt und die letzte Sicherung über 30 Tage her ist.
 
 ## Wo die Daten liegen
 
 Eigene Rezepte liegen im **localStorage** des Browsers auf dem Gerät. Browserdaten löschen
-oder Gerät wechseln = eigene Rezepte weg. Die Startrezepte kommen immer wieder.
+oder Gerät wechseln = eigene Rezepte weg – außer es gibt eine Sicherung (ⓘ → Sicherung speichern,
+eine JSON-Datei `prebatch-sicherung-JJJJ-MM-TT.json`). Die Startrezepte kommen immer wieder.
+
+- **iPhone:** Safari löscht Daten von Webseiten, die man ein paar Wochen nicht geöffnet hat.
+  Für Apps auf dem Home-Bildschirm gilt das nicht – darum installieren.
+- **Einlesen löscht nie etwas:** Neue Rezepte kommen dazu, vorhandene werden nur ersetzt, wenn sie
+  in der Sicherung neuer sind (Feld `updated`). Fehlerhafte Einträge werden übersprungen.
 
 Ändert sich das Datenformat, rechnet `js/storage.js` alte Einträge beim Start um
 (`DATA_VERSION`). Version 2: frische Zutaten aus alten Rezepten werden auf „Frisch“ gestellt,
@@ -57,6 +66,13 @@ python3 -m http.server 8020
 Auf `localhost` läuft die App **ohne Service Worker**, damit der Cache beim Entwickeln keine
 alten Dateien liefert. Ein vorhandener Service Worker wird dabei entfernt (Rezepte bleiben).
 Offline lokal testen: `http://localhost:8020/?offline`
+
+## Für andere bereitstellen
+
+Den Ordner auf maranta.dev hochladen und den Link weitergeben. Die User öffnen ihn einmal und
+installieren die App (ⓘ → App installieren). Danach läuft sie offline, jede Person hat ihre eigenen
+Rezepte auf ihrem Gerät. Kein Server, kein Konto. Als ZIP zum Herunterladen eignet sich die App nicht:
+Per Doppelklick (`file://`) blockiert der Browser ES-Module und Service Worker.
 
 ## Hochladen
 
@@ -80,9 +96,12 @@ js/main.js            Start, Zustand, Eingaben, Service Worker anmelden
 js/recipes.js         Einheiten, Flaschen, Gefäße, Startrezepte, Grenzen, Erkennung frischer Zutaten
 js/calc.js            die Rechnung (ohne DOM), Abfüllen (volle Gefäße + Rest), Batch-Zettel
 js/storage.js         Speicher auf dem Gerät (localStorage) + Umrechnung alter Daten
+js/backup.js          Sicherung als JSON: erstellen, prüfen, zusammenführen (ohne DOM)
 js/utils.js           Helfer: $, Zahlenformat (de-DE), esc, toast
 js/views/result.js    Ergebnis-Karte: Tabelle, Gefäße, Hinweise
 js/views/editor.js    Rezept anlegen/bearbeiten/löschen, Umschalter Jar | Frisch, Glas-Auswahl
+js/views/info.js      ⓘ-Fenster: Installation, Sicherung, Über
+js/views/recipe-picker.js  Rezept-Chips nach ABC
 js/views/graphics.js  SVG: Jar, Flasche, Gläser, Glas-Icons (BATCH_COLOR)
 app-icons/            Icons (SVG, 192, 512)
 ```
