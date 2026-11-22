@@ -6,6 +6,7 @@ import { loadRecipes, loadState, save, defaultRecipes } from './storage.js';
 import { compute, batchText } from './calc.js';
 import { renderResult } from './views/result.js';
 import { openEditor, initEditor } from './views/editor.js';
+import { renderRecipePicker, initRecipePicker } from './views/recipe-picker.js';
 
 let recipes = loadRecipes();
 const state = loadState();
@@ -28,13 +29,8 @@ if (!CONTAINERS.some(c => c.l === +state.jarL)) state.jarL = 7.5;
 
 /* ---------- Zeichnen ---------- */
 
-// Rezepte als Auswahlliste, nach ABC (deutsch: Ä bei A, Groß/klein egal)
-const byName = (a, b) => a.name.localeCompare(b.name, 'de', { sensitivity: 'base' });
-
 function renderRecipePick() {
-  $('#recipeSel').innerHTML = [...recipes].sort(byName).map(r =>
-    `<option value="${esc(r.id)}"${r.id === state.currentId ? ' selected' : ''}>${esc(r.name)}</option>`
-  ).join('');
+  renderRecipePicker(recipes, state.currentId);
 
   const r = current();
   $('#recipeSpec').innerHTML = r ? r.ings.filter(i => i.name).map(i =>
@@ -75,8 +71,10 @@ function renderAll() {
 const setVol = v => { v = num(v); if (v) state.targetL = Math.min(MAX_L, Math.max(0.5, Math.round(v * 10) / 10)); };
 const setCount = v => { v = Math.round(num(v)); state.count = Math.max(1, v); };
 
-$('#recipeSel').addEventListener('change', e => { state.currentId = e.target.value; renderAll(); });
-$('#addRecipe').addEventListener('click', () => openEditor(null));
+initRecipePicker({
+  onSelect(id) { state.currentId = id; renderAll(); },
+  onAdd() { openEditor(null); },
+});
 $('#editBtn').addEventListener('click', () => openEditor(current()));
 
 // Umschalten Volumen ↔ Anzahl: den anderen Wert passend mitnehmen
