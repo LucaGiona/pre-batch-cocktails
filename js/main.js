@@ -7,6 +7,7 @@ import { compute, batchText } from './calc.js';
 import { renderResult } from './views/result.js';
 import { openEditor, initEditor } from './views/editor.js';
 import { renderRecipePicker, initRecipePicker } from './views/recipe-picker.js';
+import { initInfo, needsBackup } from './views/info.js';
 
 let recipes = loadRecipes();
 const state = loadState();
@@ -34,7 +35,8 @@ function renderRecipePick() {
 
   const r = current();
   $('#recipeSpec').innerHTML = r ? r.ings.filter(i => i.name).map(i =>
-    `<b>${fAuto(+i.amount)} ${UNITS[i.unit].label}</b> ${esc(i.name)}${i.batch ? '' : ' <span class="tag">frisch</span>'}`
+    // Menge, Zutat und „frisch“ bleiben beim Umbruch zusammen
+    `<span class="spec-item"><b>${fAuto(+i.amount)}\u00a0${UNITS[i.unit].label}</b>\u00a0${esc(i.name)}${i.batch ? '' : '<span class="tag fresh">frisch</span>'}</span>`
   ).join(' · ') : '';
 }
 
@@ -55,8 +57,12 @@ function renderOutput() {
   // Bemerkung unter der Batch-Menge: bei Litern die Drinks, bei Drinks die Liter
   const ok = last && !last.empty;
   const label = '<span class="note-label">Bemerkung:</span> ';
-  $('#volNote').innerHTML = ok ? `${label}≈ ${fInt(last.drinks)} Drinks à ${fNum(last.pourCl, 1)} cl aus dem Batch` : '';
-  $('#countNote').innerHTML = ok ? `${label}${fL(last.totalMl)} Batch · max. ${fInt(last.maxCount)} Drinks bei ${MAX_L} L` : '';
+  $('#volNote').innerHTML = ok ? `${label}≈ ${fInt(last.drinks)} Drinks à ${fNum(last.pourCl, 1)}\u00a0cl aus dem Batch` : '';
+  $('#countNote').innerHTML = ok ? `${label}${fL(last.totalMl)} Batch · max.\u00a0${fInt(last.maxCount)}\u00a0Drinks bei ${MAX_L}\u00a0L` : '';
+}
+
+function renderBackupDot() {
+  $('#infoDot').hidden = !needsBackup(recipes);
 }
 
 function renderAll() {
@@ -64,6 +70,7 @@ function renderAll() {
   renderInputs();
   renderOutput();
   save(recipes, state);
+  renderBackupDot();
 }
 
 /* ---------- Eingaben ---------- */
@@ -134,6 +141,7 @@ $('#result').addEventListener('click', async e => {
 
 initEditor({
   onSave(id, data) {
+    data.updated = Date.now();        // für die Sicherung: neuere Version gewinnt beim Einlesen
     if (id) Object.assign(recipes.find(r => r.id === id), data);
     else {
       const newId = 'r' + Date.now().toString(36);
@@ -156,23 +164,20 @@ initEditor({
 // entfernt und sein Cache gelöscht (Rezepte im localStorage bleiben unberührt).
 // Offline lokal testen: Adresse mit ?offline aufrufen, z. B. http://localhost:5500/?offline
 
-const net = $('#netStatus');
+let status = 'Online';
 const isDev = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 const wantSW = 'serviceWorker' in navigator && (!isDev || new URLSearchParams(location.search).has('offline'));
 
 if (wantSW) {
   navigator.serviceWorker.register(isDev ? 'sw.js?dev-offline' : 'sw.js').then(() => {
-    net.classList.add('on');
-    net.textContent = 'Offline bereit';
-    addEventListener('online', () => { net.textContent = 'Offline bereit'; });
-    addEventListener('offline', () => { net.textContent = 'Offline – läuft trotzdem'; });
+    status = 'Offline bereit';
+    addEventListener('online', () => { status = 'Offline bereit'; });
+    addEventListener('offline', () => { status = 'Offline – läuft trotzdem'; });
   }).catch(() => {
-    net.textContent = navigator.onLine ? 'Online' : 'Offline';
-    net.title = 'Offline-Modus nur über einen Webserver (nicht per Doppelklick)';
+    status = (navigator.onLine ? 'Online' : 'Offline') + ' – Offline-Modus nur über einen Webserver';
   });
 } else {
-  net.textContent = isDev ? 'Entwicklung' : (navigator.onLine ? 'Online' : 'Offline');
-  if (isDev) net.title = 'Lokal ohne Offline-Cache. Mit ?offline in der Adresse testen.';
+  status = isDev ? 'Entwicklung (lokal ohne Offline-Cache, mit ?offline testen)' : (navigator.onLine ? 'Online' : 'Offline');
   if (isDev && 'serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations()
       .then(regs => Promise.all(regs.map(r => r.unregister())))
@@ -184,5 +189,18 @@ if (wantSW) {
     }
   }
 }
+
+/* ---------- Info-Fenster ---------- */
+
+initInfo({
+  getRecipes: () => recipes,
+  getStatus: () => status,
+  onImport(merged) {
+    recipes = merged;
+    if (!recipes.some(r => r.id === state.currentId)) state.currentId = recipes[0].id;
+    renderAll();
+  },
+  onBackupDone: renderBackupDot,
+});
 
 renderAll();

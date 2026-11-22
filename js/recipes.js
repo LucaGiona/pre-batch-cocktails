@@ -91,4 +91,24 @@ export const PRESETS = [
     ing('Zitronensaft', 3, 'cl', 0, false, 1), ing('Eiweiß', 2, 'cl', 0, false, 1)] },
   { id: 'paloma', name: 'Paloma', glass: 'highball', ings: [
     ing('Tequila', 5, 'cl', 38), ing('Limettensaft', 1.5, 'cl', 0, false, 1), ing('Grapefruit-Limo', 10, 'cl', 0, false, 1)] },
+  // Melody Bar (aus Melody/Rezepturen.xlsx). % vol bei Premixes, Wermut-Mix, Cherry und Choco
+  // sind unbekannt (0) – bitte nachtragen. Gemuddelte Ananas und „Top mit Soda“ fehlen (keine Menge).
+  { id: 'melody-mojito', name: 'Sous Vide Mojito', glass: 'highball', ings: [
+    ing('Mojito Premix', 6), ing('Limettensaft', 2, 'cl', 0, false, 1)] },
+  { id: 'melody-penicillin', name: 'Penicillin', glass: 'tumbler', ings: [
+    ing('Monkey Premix', 5), ing('Honig-Ingwer-Sirup Mix', 3, 'cl', 0, true, 1),
+    ing('Zitronensaft', 3, 'cl', 0, false, 1)] },
+  { id: 'melody-bloodsand', name: 'Blood & Sand', glass: 'martini', ings: [
+    ing('Monkey Premix', 4), ing('Cherry', 2), ing('Wermut Mix', 2, 'cl', 0, true, 1),
+    ing('Orangensaft', 2, 'cl', 0, false, 1)] },
+  { id: 'melody-million', name: 'Million $ Cocktail', glass: 'martini', ings: [
+    ing('Gin', 5, 'cl', 40), ing('Wermut Mix', 2.5, 'cl', 0, true, 1), ing('Grenadine', 1, 'bl', 0, true, 1),
+    ing('Eiweiß', 2, 'cl', 0, false, 1)] },
+  { id: 'melody-multimillion', name: 'Multi-Million $ Cocktail', glass: 'martini', ings: [
+    ing('Mezcal', 4, 'cl', 40), ing('Cynar', 1, 'cl', 16.5, true, 1), ing('Honig-Ingwer-Sirup', 2, 'cl', 0, true, 1),
+    ing('Limettensaft', 2, 'cl', 0, false, 1)] },
+  { id: 'melody-bonnieprince', name: 'Bonnie Prince Charlie', glass: 'martini', ings: [
+    ing('Monkey Premix', 5), ing('Honigsirup', 2, 'cl', 0, true, 1), ing('Sahne', 3, 'cl', 0, false, 1)] },
+  { id: 'melody-brandyalexander', name: 'Brandy Alexander', glass: 'martini', ings: [
+    ing('Brandy', 5, 'cl', 40), ing('Choco', 2), ing('Sahne', 2, 'cl', 0, false, 1)] },
 ];

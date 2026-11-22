@@ -6,7 +6,8 @@ import { PRESETS, isFresh, defaultGlass } from './recipes.js';
 const KEY_RECIPES = 'prebatch.recipes.v1';
 const KEY_STATE = 'prebatch.state.v1';
 const KEY_DATA_VERSION = 'prebatch.dataVersion';
-const DATA_VERSION = 3; // 2 = frische Zutaten getrennt, 3 = Glas pro Rezept
+export const DATA_VERSION = 4; // 2 = frische Zutaten getrennt, 3 = Glas pro Rezept, 4 = Melody-Rezepte
+const KEY_LAST_BACKUP = 'prebatch.lastBackup';
 
 const DEFAULT_STATE = { currentId: 'negroni', mode: 'vol', targetL: 7, count: 70, jarL: 7.5 };
 
@@ -24,7 +25,9 @@ export const defaultRecipes = () => clone(PRESETS);
 // Alte Daten umrechnen:
 // v2: Frische Zutaten kamen früher ins Jar, jetzt nie mehr. Neue Startrezepte ergänzen.
 // v3: Jedes Rezept bekommt ein Glas (Startrezepte ihr eigenes, sonst nach Zutaten).
-function migrate(recipes, from) {
+// v4: Melody-Startrezepte kommen dazu (über migrate, wie alle neuen Startrezepte).
+// upgradeRecipes wird auch beim Einlesen einer älteren Sicherung benutzt.
+export function upgradeRecipes(recipes, from) {
   if (from < 2) {
     for (const r of recipes)
       for (const i of r.ings)
@@ -32,6 +35,11 @@ function migrate(recipes, from) {
   }
   for (const r of recipes)
     if (!r.glass) r.glass = PRESETS.find(p => p.id === r.id)?.glass || defaultGlass(r.ings);
+  return recipes;
+}
+
+function migrate(recipes, from) {
+  upgradeRecipes(recipes, from);
   for (const p of PRESETS)
     if (!recipes.some(r => r.id === p.id)) recipes.push(clone(p));
   return recipes;
@@ -60,3 +68,7 @@ export function save(recipes, state) {
   write(KEY_STATE, state);
   write(KEY_DATA_VERSION, DATA_VERSION);
 }
+
+// Zeitpunkt der letzten Sicherung (für die Erinnerung nach 30 Tagen)
+export const getLastBackup = () => read(KEY_LAST_BACKUP, 0);
+export const setLastBackup = () => write(KEY_LAST_BACKUP, Date.now());

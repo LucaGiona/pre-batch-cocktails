@@ -22,7 +22,10 @@
       <h1>Pre<span>·</span>Batch</h1>
       <p class="sub">Rezeptur wählen, Menge festlegen – fertig ist die Einkaufs- und Mischliste.</p>
     </div>
-    <span class="status" id="netStatus">Offline bereit?</span>
+    <button class="info-btn" id="infoBtn" aria-label="Info: App installieren und Sicherung" title="App installieren & Sicherung">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="7.4" r="1.3" fill="currentColor"/><path d="M12 10.6v6.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="info-dot" id="infoDot" hidden></span>
+    </button>
   </header>
 
   <section class="card" id="step1">
@@ -101,6 +104,13 @@
       <button class="btn danger" id="edDelete">Löschen</button>
       <span style="display:flex;gap:8px"><button class="btn" id="edCancel">Abbrechen</button><button class="btn primary" id="edSave">Speichern</button></span>
     </div>
+  </div>
+</div>
+<!-- Info: Installation, Sicherung, Über -->
+<div class="overlay" id="info" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+  <div class="sheet info-sheet">
+    <div class="sheet-head"><h3 id="infoTitle">Pre<span>·</span>Batch</h3><button class="x" id="infoClose" aria-label="Schließen">×</button></div>
+    <div id="infoBody"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>

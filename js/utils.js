@@ -15,8 +15,8 @@ export const fAuto = x => {
   return nf(2).format(x);
 };
 
-export const fMl = ml => (ml >= 100 ? nf(0).format(Math.round(ml)) : nf(1).format(ml)) + ' ml';
-export const fL = ml => nf(2).format(ml / 1000) + ' L';
+export const fMl = ml => (ml >= 100 ? nf(0).format(Math.round(ml)) : nf(1).format(ml)) + '\u00a0ml';  // geschütztes Leerzeichen: Einheit bricht nie allein um
+export const fL = ml => nf(2).format(ml / 1000) + '\u00a0L';
 
 // Komma oder Punkt als Dezimaltrenner akzeptieren
 export const num = v => +String(v).replace(',', '.') || 0;
