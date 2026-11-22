@@ -1,0 +1,185 @@
+/* Bedienelemente: Buttons, Umschalter, Mengen-Eingabe, Regler, Formularfelder */
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.btn:hover {
+  border-color: var(--muted);
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.btn.danger {
+  color: var(--red);
+  border-color: #5a2c25;
+  background: transparent;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.bigrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bignum {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.bignum input {
+  width: 5.2ch;
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--line);
+  color: var(--text);
+  padding: 0 2px;
+  text-align: right;
+}
+
+.bignum input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.bignum .u {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  margin: 14px 0 6px;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.presets .btn {
+  padding: 6px 11px;
+  font-size: 13px;
+}
+
+.presets .btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width:560px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+label.small {
+  font-size: 13px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+select,
+input.field {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 15px;
+}
+
+select:focus,
+input.field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.range-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: -2px;
+}
+
+.range-scale span:nth-child(2) {
+  margin-left: -8px;
+}
+
+.fill-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin: 10px 0 4px;
+}
+
+.fill-line b {
+  font-weight: 600;
+}
+
+.fill-line .btn {
+  font-size: 13px;
+  padding: 6px 11px;
+}

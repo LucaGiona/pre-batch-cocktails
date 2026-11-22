@@ -1,0 +1,88 @@
+/* Rezept-Auswahl: Chips mit Buchstaben-Index */
+
+.recipe-chips {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.chips-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chips-wrap[data-open="0"] {
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.chip {
+  flex: none;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.chip.add {
+  border-style: dashed;
+  color: var(--muted);
+  background: transparent;
+}
+
+.chip.more {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.chip-letter {
+  flex: none;
+  width: 18px;
+  margin-right: -4px;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+}
+
+.chip-group {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chips-wrap[data-open="1"] .chip-group:not(:first-child) {
+  margin-left: 6px;
+}
+
+.recipe-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.recipe-line b {
+  color: var(--text);
+  font-weight: 500;
+}

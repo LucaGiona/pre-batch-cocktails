@@ -6,14 +6,21 @@
 // installiert die neue Version im Hintergrund und nimmt sie beim nächsten Öffnen.
 // Ohne VERSION zu erhöhen, sieht niemand die Änderungen!
 
-const VERSION = 'v21';
+const VERSION = 'v22';
 const SHELL = `prebatch-shell-${VERSION}`;
 
 const SHELL_FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'css/style.css',
+  'css/base.css',
+  'css/recipe-picker.css',
+  'css/controls.css',
+  'css/result.css',
+  'css/graphics.css',
+  'css/editor.css',
+  'css/info.css',
+  'css/print.css',
   'js/main.js',
   'js/recipes.js',
   'js/utils.js',

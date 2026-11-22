@@ -91,7 +91,14 @@ Nur statische Dateien, kein PHP nötig. Geht genauso mit GitHub Pages oder Netli
 
 ```text
 index.html, sw.js, manifest.webmanifest   App-Hülle und PWA (VERSION in sw.js erhöhen!)
-css/style.css         Aussehen (dunkel, Bar-Stil), inkl. Druckansicht
+css/base.css          Farben, Schriften, Seitenlayout, Kopf, Karten, Toast, Footer
+css/recipe-picker.css Rezept-Chips nach ABC
+css/controls.css      Buttons, Umschalter, Mengen-Eingabe, Regler, Formularfelder
+css/result.css        Ergebnis-Karte: Kennzahlen, Tabelle, Hinweise, Frisch-Block
+css/graphics.css      Grafik Jar → Glas, Legende
+css/editor.css        Rezept-Editor: Sheet, Zutatenzeilen, Jar | Frisch, Glas-Auswahl
+css/info.css          ⓘ-Fenster
+css/print.css         Druckansicht (als Letztes laden)
 js/main.js            Start, Zustand, Eingaben, Service Worker anmelden
 js/recipes.js         Einheiten, Flaschen, Gefäße, Startrezepte, Grenzen, Erkennung frischer Zutaten
 js/calc.js            die Rechnung (ohne DOM), Abfüllen (volle Gefäße + Rest), Batch-Zettel
