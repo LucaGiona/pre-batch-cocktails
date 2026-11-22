@@ -1,0 +1,41 @@
+/* Druckansicht */
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  header .info-btn,
+  #step1,
+  #step2,
+  #step3,
+  .actions,
+  footer {
+    display: none !important;
+  }
+
+  .flow {
+    background: #f2f2f2;
+  }
+
+  section.card {
+    border: 0;
+    background: #fff;
+    padding: 0;
+  }
+
+  .stat {
+    background: #f2f2f2;
+  }
+
+  td,
+  th {
+    border-color: #ccc;
+    color: #000;
+  }
+
+  .notes li {
+    background: #f6f6f6;
+  }
+}

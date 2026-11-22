@@ -1,0 +1,211 @@
+/* Rezept-Editor: Overlay/Sheet, Zutatenzeilen, Jar|Frisch, Glas-Auswahl */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 20;
+}
+
+.overlay.open {
+  display: flex;
+}
+
+@media (min-width:640px) {
+  .overlay {
+    align-items: center;
+  }
+}
+
+.sheet {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px 18px 0 0;
+  width: 100%;
+  max-width: 720px;
+  max-height: 92vh;
+  overflow: auto;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+}
+
+@media (min-width:640px) {
+  .sheet {
+    border-radius: 18px;
+  }
+}
+
+.sheet h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  margin: 0 0 14px;
+}
+
+.ing {
+  display: grid;
+  grid-template-columns: 1fr 78px 82px 70px 34px;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ing-head {
+  font-size: 11px;
+  color: var(--muted);
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ing input,
+.ing select {
+  padding: 8px 7px;
+  font-size: 14px;
+}
+
+.x {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px;
+}
+
+.x:hover {
+  color: var(--red);
+}
+
+@media (max-width:600px) {
+  .ing {
+    grid-template-columns: 1fr 1fr 1fr 34px;
+  }
+
+  .ing .nm {
+    grid-column: 1 / 4;
+  }
+
+  .ing .bt {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .ing-head {
+    display: none;
+  }
+
+  .ing .lbl-m {
+    display: block;
+  }
+}
+
+.lbl-m {
+  display: none;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.sheet-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.confirm {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #5a2c25;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.confirm.open {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.ing-foot {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ing-foot .bottle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ing-foot select {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.role {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.role button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.role [data-role="jar"][aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.role [data-role="fresh"][aria-pressed="true"] {
+  background: var(--green);
+  color: #10200f;
+  font-weight: 600;
+}
+
+.glass-pick {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.glass-pick button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 6px 12px 6px 8px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.glass-pick button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.glass-pick button[aria-pressed="true"] svg {
+  color: var(--accent);
+}
